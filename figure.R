@@ -69,22 +69,23 @@ ggplot(filter(data3, country %in% ("France")), aes(contract_name, fill=bonus)) +
   ggplot(filter(data4, country=="France"), aes(country))+
     geom_bar(aes(fill=contract_name)) 
   
-  
+
 library(shiny)
   
-  ui <- fluidPage(
+  ui.hist <- fluidPage(
         sliderInput(inputId = "num",
                     label = "Choose a number",
                     value = 25, min=1, max=100),
         plotOutput(outputId = "hist")
                   )
-  server <- function(input, output){
+  server.hist <- function(input, output){
     output$hist <- renderPlot({
       title <- "Random normal values"
       hist(rnorm(input$num), main=title)
       })
   }
-  shinyApp(ui=ui, server=server)
+  
+  shinyApp(ui=ui.hist, server=server.hist)
   
  ################################################################################################### 
   ui <- fluidPage(
@@ -141,7 +142,7 @@ library(shiny)
   shinyApp(ui=ui, server=server)
   
   ################################################################################################### 
-  ui <- fluidPage(
+  ui.boxplot <- fluidPage(
     sidebarPanel(
       selectInput(inputId = "country", "Choose a country name",
                   choices = c("Australia",  "Belgium", "France",  "IRELAND", "JAPAN", "Lithuania",  "Luxembourg", 
@@ -160,7 +161,7 @@ library(shiny)
     
   )
   
-  server <- function(input, output){
+  server.boxplot <- function(input, output){
     
     datasetInput <- reactive({
       switch(input$country,
@@ -201,5 +202,30 @@ library(shiny)
 
     })
   }
-  shinyApp(ui=ui, server=server)
+  shinyApp(ui=ui.boxplot, server=server.boxplot)
+  
+  ###############################################################
+  ui.module <- shinyUI(navbarPage("My Application",
+                          tabPanel("Component 1", uiOutput("component1")),
+                          tabPanel("Component 2"),
+                          tabPanel("Component 3")
+  ))
+  server.module <- function(input, output){
+    output$component1 <- renderUI({
+      sidebarLayout(
+        sidebarPanel(
+        ),
+        mainPanel(
+          tabsetPanel(
+            tabPanel("Plot", plotOutput("plot")), 
+            tabPanel("Summary", verbatimTextOutput("summary")), 
+            tabPanel("Table", tableOutput("table"))
+          )
+        )
+      )
+    })
+  }
+  shinyApp(ui.module, server.module)
+
+  ###############################################################
   
